@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FlightsRouteImport } from './routes/flights'
+import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
+import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
+import { Route as AgentDocumentsRouteImport } from './routes/agent.documents'
+import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FlightsRoute = FlightsRouteImport.update({
+  id: '/flights',
+  path: '/flights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
+  id: '/admin/documents',
+  path: '/admin/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDashboardRoute = AgentDashboardRouteImport.update({
+  id: '/agent/dashboard',
+  path: '/agent/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDocumentsRoute = AgentDocumentsRouteImport.update({
+  id: '/agent/documents',
+  path: '/agent/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentRegisterRoute = AgentRegisterRouteImport.update({
+  id: '/agent/register',
+  path: '/agent/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/flights': typeof FlightsRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/agent/dashboard': typeof AgentDashboardRoute
+  '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/register': typeof AgentRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/flights': typeof FlightsRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/agent/dashboard': typeof AgentDashboardRoute
+  '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/register': typeof AgentRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/flights': typeof FlightsRoute
+  '/admin/documents': typeof AdminDocumentsRoute
+  '/agent/dashboard': typeof AgentDashboardRoute
+  '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/register': typeof AgentRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/flights'
+    | '/admin/documents'
+    | '/agent/dashboard'
+    | '/agent/documents'
+    | '/agent/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/flights'
+    | '/admin/documents'
+    | '/agent/dashboard'
+    | '/agent/documents'
+    | '/agent/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/flights'
+    | '/admin/documents'
+    | '/agent/dashboard'
+    | '/agent/documents'
+    | '/agent/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FlightsRoute: typeof FlightsRoute
+  AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AgentDashboardRoute: typeof AgentDashboardRoute
+  AgentDocumentsRoute: typeof AgentDocumentsRoute
+  AgentRegisterRoute: typeof AgentRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/flights': {
+      id: '/flights'
+      path: '/flights'
+      fullPath: '/flights'
+      preLoaderRoute: typeof FlightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/documents': {
+      id: '/admin/documents'
+      path: '/admin/documents'
+      fullPath: '/admin/documents'
+      preLoaderRoute: typeof AdminDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/dashboard': {
+      id: '/agent/dashboard'
+      path: '/agent/dashboard'
+      fullPath: '/agent/dashboard'
+      preLoaderRoute: typeof AgentDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/documents': {
+      id: '/agent/documents'
+      path: '/agent/documents'
+      fullPath: '/agent/documents'
+      preLoaderRoute: typeof AgentDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/register': {
+      id: '/agent/register'
+      path: '/agent/register'
+      fullPath: '/agent/register'
+      preLoaderRoute: typeof AgentRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FlightsRoute: FlightsRoute,
+  AdminDocumentsRoute: AdminDocumentsRoute,
+  AgentDashboardRoute: AgentDashboardRoute,
+  AgentDocumentsRoute: AgentDocumentsRoute,
+  AgentRegisterRoute: AgentRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
