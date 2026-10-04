@@ -18,7 +18,7 @@ export interface AgentDoc {
   label: string;
   fileName: string;
   status: DocStatus;
-  reason?: string;
+  reason?: string | undefined;
   uploadedAt: string;
   version: number;
 }
@@ -46,12 +46,12 @@ function seed(): State {
     businessAddress: "House 12, Road 7",
     city,
     ownerName: owner,
-    email: owner.split(" ")[0].toLowerCase() + "@" + name.split(" ")[0].toLowerCase() + ".com.bd",
+    email: (owner.split(" ")[0] ?? "").toLowerCase() + "@" + (name.split(" ")[0] ?? "").toLowerCase() + ".com.bd",
     phone: "+880 17" + Math.floor(10000000 + Math.random() * 89999999),
     createdAt: new Date(Date.now() - Math.random() * 6e8).toISOString(),
     documents: REQUIRED_DOCS.map((d, i) => ({
       id: uid(), type: d.type, label: d.label,
-      fileName: d.type + ".pdf", status: statuses[i],
+      fileName: d.type + ".pdf", status: statuses[i] ?? "pending",
       reason: statuses[i] === "rejected" ? reason : undefined,
       uploadedAt: now(), version: 1,
     })),
