@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import type { DocStatus, AgentStatus } from "@/lib/mock/agents";
+import type { DocStatus, VerificationStatus } from "@/lib/mock/agents";
 
 export function Logo() {
   return (
@@ -19,11 +19,11 @@ export function SiteHeader() {
         <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
           <Link to="/flights" className="hover:text-foreground">Flights</Link>
           <Link to="/agent/register" className="hover:text-foreground">For Agencies</Link>
-          <Link to="/admin/documents" className="hover:text-foreground">Admin</Link>
+          <Link to="/admin/dashboard" className="hover:text-foreground">Admin</Link>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden font-mono text-xs text-muted-foreground sm:inline">BDT</span>
-          <Link to="/agent/dashboard" className="text-sm font-medium">Agent sign in</Link>
+          <Link to="/agent/sign-in" className="text-sm font-medium">Agent sign in</Link>
           <Link to="/agent/register" className="rounded-xl bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-primary-dark">Become an agent</Link>
         </div>
       </div>
@@ -58,41 +58,23 @@ export function SiteFooter() {
   );
 }
 
-const statusMap: Record<DocStatus | AgentStatus, { label: string; cls: string; dot: string }> = {
+type AnyStatus = DocStatus | VerificationStatus | "PENDING" | "APPROVED" | "REJECTED";
+const statusMap: Record<AnyStatus, { label: string; cls: string; dot: string }> = {
+  not_uploaded: { label: "Not uploaded", cls: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
+  not_submitted: { label: "Not submitted", cls: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
   pending: { label: "Pending review", cls: "bg-sand-soft text-foreground", dot: "bg-warning" },
+  PENDING: { label: "Pending", cls: "bg-sand-soft text-foreground", dot: "bg-warning" },
   approved: { label: "Approved", cls: "bg-sage-soft text-foreground", dot: "bg-success" },
+  APPROVED: { label: "Approved", cls: "bg-sage-soft text-foreground", dot: "bg-success" },
   rejected: { label: "Rejected", cls: "bg-clay-soft text-foreground", dot: "bg-error" },
+  REJECTED: { label: "Rejected", cls: "bg-clay-soft text-foreground", dot: "bg-error" },
   action_required: { label: "Action required", cls: "bg-clay-soft text-foreground", dot: "bg-error" },
 };
-export function StatusBadge({ status }: { status: DocStatus | AgentStatus }) {
-  const s = statusMap[status];
+export function StatusBadge({ status }: { status: AnyStatus | string }) {
+  const s = statusMap[status as AnyStatus] ?? { label: status, cls: "bg-muted text-foreground", dot: "bg-muted-foreground" };
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${s.cls}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${s.cls}`}>
       <span className={`size-1.5 rounded-full ${s.dot}`} />{s.label}
     </span>
   );
 }
-
-export function AppShell({ role, nav, children }: { role: string; nav: { to: "/agent/dashboard" | "/agent/documents" | "/admin/documents" | "/flights"; label: string }[]; children: ReactNode }) {
-  return (
-    <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
-      <aside className="border-b border-border bg-surface p-5 md:min-h-screen md:border-b-0 md:border-r">
-        <Logo />
-        <div className="eyebrow mt-8 mb-2">{role}</div>
-        <nav className="flex gap-1 md:flex-col">
-          {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "bg-clay-soft text-foreground" }}>{n.label}</Link>
-          ))}
-        </nav>
-      </aside>
-      <main className="mx-auto w-full max-w-5xl px-6 py-8">{children}</main>
-    </div>
-  );
-}
-
-export const agentNav = [
-  { to: "/agent/dashboard" as const, label: "Dashboard" },
-  { to: "/agent/documents" as const, label: "Documents" },
-  { to: "/flights" as const, label: "Search flights" },
-];
