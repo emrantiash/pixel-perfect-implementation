@@ -15,6 +15,7 @@ import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
 import { Route as AdminSignInRouteImport } from './routes/admin.sign-in'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
 import { Route as AgentDocumentsRouteImport } from './routes/agent.documents'
+import { Route as AgentProfileRouteImport } from './routes/agent.profile'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
 import { Route as AgentSignInRouteImport } from './routes/agent.sign-in'
 
@@ -48,6 +49,11 @@ const AgentDocumentsRoute = AgentDocumentsRouteImport.update({
   path: '/agent/documents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentProfileRoute = AgentProfileRouteImport.update({
+  id: '/agent/profile',
+  path: '/agent/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentRegisterRoute = AgentRegisterRouteImport.update({
   id: '/agent/register',
   path: '/agent/register',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/profile': typeof AgentProfileRoute
   '/agent/register': typeof AgentRegisterRoute
   '/agent/sign-in': typeof AgentSignInRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/profile': typeof AgentProfileRoute
   '/agent/register': typeof AgentRegisterRoute
   '/agent/sign-in': typeof AgentSignInRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
+  '/agent/profile': typeof AgentProfileRoute
   '/agent/register': typeof AgentRegisterRoute
   '/agent/sign-in': typeof AgentSignInRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
+    | '/agent/profile'
     | '/agent/register'
     | '/agent/sign-in'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
+    | '/agent/profile'
     | '/agent/register'
     | '/agent/sign-in'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
+    | '/agent/profile'
     | '/agent/register'
     | '/agent/sign-in'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   AdminSignInRoute: typeof AdminSignInRoute
   AgentDashboardRoute: typeof AgentDashboardRoute
   AgentDocumentsRoute: typeof AgentDocumentsRoute
+  AgentProfileRoute: typeof AgentProfileRoute
   AgentRegisterRoute: typeof AgentRegisterRoute
   AgentSignInRoute: typeof AgentSignInRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/profile': {
+      id: '/agent/profile'
+      path: '/agent/profile'
+      fullPath: '/agent/profile'
+      preLoaderRoute: typeof AgentProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/register': {
       id: '/agent/register'
       path: '/agent/register'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSignInRoute: AdminSignInRoute,
   AgentDashboardRoute: AgentDashboardRoute,
   AgentDocumentsRoute: AgentDocumentsRoute,
+  AgentProfileRoute: AgentProfileRoute,
   AgentRegisterRoute: AgentRegisterRoute,
   AgentSignInRoute: AgentSignInRoute,
 }
