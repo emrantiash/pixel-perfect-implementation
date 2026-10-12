@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Logo } from "@/components/brand";
 import { Spinner } from "@/components/panel";
 import { authAdapter, startDevPreview, type Role } from "@/lib/auth";
-import { ensureAgentForUser } from "@/lib/mock/agents";
 import { useSession } from "@/lib/auth";
 
 export function AuthLayout({ children }: { children: ReactNode }) {
@@ -140,9 +139,3 @@ export function RegisterForm() {
   );
 }
 
-/** Creates the local preview agent profile once a session exists (never before). */
-export function useEnsureAgentProfile() {
-  const s = useSession();
-  if (s && s.role === "agent") ensureAgentForUser(s);
-  return s;
-}

@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FlightsRouteImport } from './routes/flights'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
+import { Route as AdminSignInRouteImport } from './routes/admin.sign-in'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
 import { Route as AgentDocumentsRouteImport } from './routes/agent.documents'
 import { Route as AgentRegisterRouteImport } from './routes/agent.register'
+import { Route as AgentSignInRouteImport } from './routes/agent.sign-in'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,6 +31,11 @@ const FlightsRoute = FlightsRouteImport.update({
 const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   id: '/admin/documents',
   path: '/admin/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSignInRoute = AdminSignInRouteImport.update({
+  id: '/admin/sign-in',
+  path: '/admin/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentDashboardRoute = AgentDashboardRouteImport.update({
@@ -46,31 +53,42 @@ const AgentRegisterRoute = AgentRegisterRouteImport.update({
   path: '/agent/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentSignInRoute = AgentSignInRouteImport.update({
+  id: '/agent/sign-in',
+  path: '/agent/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agent/sign-in': typeof AgentSignInRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agent/sign-in': typeof AgentSignInRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/sign-in': typeof AdminSignInRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
   '/agent/register': typeof AgentRegisterRoute
+  '/agent/sign-in': typeof AgentSignInRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,34 +96,42 @@ export interface FileRouteTypes {
     | '/'
     | '/flights'
     | '/admin/documents'
+    | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
     | '/agent/register'
+    | '/agent/sign-in'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/flights'
     | '/admin/documents'
+    | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
     | '/agent/register'
+    | '/agent/sign-in'
   id:
     | '__root__'
     | '/'
     | '/flights'
     | '/admin/documents'
+    | '/admin/sign-in'
     | '/agent/dashboard'
     | '/agent/documents'
     | '/agent/register'
+    | '/agent/sign-in'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FlightsRoute: typeof FlightsRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminSignInRoute: typeof AdminSignInRoute
   AgentDashboardRoute: typeof AgentDashboardRoute
   AgentDocumentsRoute: typeof AgentDocumentsRoute
   AgentRegisterRoute: typeof AgentRegisterRoute
+  AgentSignInRoute: typeof AgentSignInRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -131,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sign-in': {
+      id: '/admin/sign-in'
+      path: '/admin/sign-in'
+      fullPath: '/admin/sign-in'
+      preLoaderRoute: typeof AdminSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/dashboard': {
       id: '/agent/dashboard'
       path: '/agent/dashboard'
@@ -152,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/sign-in': {
+      id: '/agent/sign-in'
+      path: '/agent/sign-in'
+      fullPath: '/agent/sign-in'
+      preLoaderRoute: typeof AgentSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -159,9 +199,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FlightsRoute: FlightsRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminSignInRoute: AdminSignInRoute,
   AgentDashboardRoute: AgentDashboardRoute,
   AgentDocumentsRoute: AgentDocumentsRoute,
   AgentRegisterRoute: AgentRegisterRoute,
+  AgentSignInRoute: AgentSignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
