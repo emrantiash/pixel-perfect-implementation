@@ -11,7 +11,7 @@ import jeddah from "@/assets/dest-jeddah.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TripFlyer — Flight booking for Bangladesh, in BDT" },
+      { title: "TripFlyer | Flight Booking & Travel Agency Platform" },
       { name: "description", content: "Search and book flights from Dhaka to Dubai, Bangkok, Singapore, London and more. Transparent fares in BDT for travellers and agencies." },
       { property: "og:title", content: "TripFlyer — Flight booking for Bangladesh" },
       { property: "og:description", content: "Transparent BDT fares from Dhaka to the world, for travellers and travel agencies." },
