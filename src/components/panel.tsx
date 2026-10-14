@@ -59,7 +59,7 @@ export function PanelShell({ area, children }: { area: Role; children: ReactNode
         <div className="eyebrow mt-8 mb-2 hidden md:block">{area === "agent" ? "Agent panel" : "Admin panel"}</div>
         <nav className="-mx-1 mt-3 flex gap-1 overflow-x-auto pb-1 md:mx-0 md:mt-0 md:flex-col md:overflow-visible">
           {nav.map((n) => (
-            <Link key={String(n.to)} to={n.to}
+            <Link key={String(n.to)} to={n.to as string}
               className="flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
               activeProps={{ className: "bg-clay-soft text-foreground" }}>
               <n.icon className="size-4" />{n.label}

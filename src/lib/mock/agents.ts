@@ -16,12 +16,12 @@ export const REQUIRED_DOCS = [
 export type DocType = (typeof REQUIRED_DOCS)[number]["type"];
 export const BUSINESS_TYPES = ["Sole proprietorship", "Partnership", "Private limited company", "Public limited company", "Other"] as const;
 
-export interface AgentDoc { type: DocType; label: string; fileName?: string; status: DocStatus; reason?: string; uploadedAt?: string; version: number }
+export interface AgentDoc { type: DocType; label: string; fileName?: string | undefined; status: DocStatus; reason?: string | undefined; uploadedAt?: string | undefined; version: number }
 export interface Business { name: string; type: string; address: string; city: string; country: string; currency: string }
 export interface Owner { designation: string; nidNumber: string; dateOfBirth: string }
 export interface Agent {
   id: string; userId: string; ownerName: string; email: string; phone: string; createdAt: string;
-  business: Business; owner: Owner; documents: AgentDoc[]; submittedAt?: string; demo?: boolean;
+  business: Business; owner: Owner; documents: AgentDoc[]; submittedAt?: string | undefined; demo?: boolean | undefined;
 }
 
 interface State { agents: Agent[] }
@@ -77,7 +77,7 @@ export function useAgentForUser(userId?: string) {
 }
 
 /** Creates the agent profile only once an authenticated identity exists. */
-export function ensureAgentForUser(u: { userId: string; name: string; email: string; phone?: string }) {
+export function ensureAgentForUser(u: { userId: string; name: string; email: string; phone?: string | undefined }) {
   load();
   if (state.agents.some((a) => a.userId === u.userId)) return;
   const agent: Agent = {
