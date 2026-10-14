@@ -53,18 +53,18 @@ function Profile() {
         <Card>
           <h2 className="font-display text-lg font-semibold">A. Business profile</h2>
           <form className="mt-4 grid gap-4" noValidate onSubmit={(e) => { e.preventDefault(); const r = bSchema.safeParse(b); setBe(errs(r)); if (r.success) { saveBusiness(agent.id, r.data); toast.success("Business profile saved"); } }}>
-            <Field label="Company / agency name" required error={be.name}>{inp(b.name, (v) => setB({ ...b, name: v }), be.name)}</Field>
-            <Field label="Business type" required error={be.type}>
-              <select value={b.type} onChange={(e) => setB({ ...b, type: e.target.value })} className="field" aria-invalid={!!be.type}>
+            <Field label="Company / agency name" required error={be["name"]}>{inp(b.name, (v) => setB({ ...b, name: v }), be["name"])}</Field>
+            <Field label="Business type" required error={be["type"]}>
+              <select value={b.type} onChange={(e) => setB({ ...b, type: e.target.value })} className="field" aria-invalid={!!be["type"]}>
                 <option value="">Select…</option>{BUSINESS_TYPES.map((t) => <option key={t}>{t}</option>)}
               </select>
             </Field>
-            <Field label="Business address" required error={be.address}>{inp(b.address, (v) => setB({ ...b, address: v }), be.address)}</Field>
+            <Field label="Business address" required error={be["address"]}>{inp(b.address, (v) => setB({ ...b, address: v }), be["address"])}</Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="City" required error={be.city}>{inp(b.city, (v) => setB({ ...b, city: v }), be.city)}</Field>
-              <Field label="Country" required error={be.country}>{inp(b.country, (v) => setB({ ...b, country: v }), be.country)}</Field>
+              <Field label="City" required error={be["city"]}>{inp(b.city, (v) => setB({ ...b, city: v }), be["city"])}</Field>
+              <Field label="Country" required error={be["country"]}>{inp(b.country, (v) => setB({ ...b, country: v }), be["country"])}</Field>
             </div>
-            <Field label="Preferred currency" required error={be.currency}>
+            <Field label="Preferred currency" required error={be["currency"]}>
               <select value={b.currency} onChange={(e) => setB({ ...b, currency: e.target.value })} className="field">
                 {["BDT", "USD", "AED", "SAR", "GBP"].map((c) => <option key={c}>{c}</option>)}
               </select>
@@ -81,8 +81,8 @@ function Profile() {
           </dl>
           <p className="mt-2 text-xs text-muted-foreground">Taken from your account — change them in Settings.</p>
           <form className="mt-4 grid gap-4" noValidate onSubmit={(e) => { e.preventDefault(); const r = oSchema.safeParse(o); setOe(errs(r)); if (r.success) { saveOwner(agent.id, { ...o, ...r.data, dateOfBirth: r.data.dateOfBirth ?? "" }); toast.success("Owner information saved"); } }}>
-            <Field label="Designation" required error={oe.designation}>{inp(o.designation, (v) => setO({ ...o, designation: v }), oe.designation)}</Field>
-            <Field label="NID number" required error={oe.nidNumber}>{inp(o.nidNumber, (v) => setO({ ...o, nidNumber: v }), oe.nidNumber)}</Field>
+            <Field label="Designation" required error={oe["designation"]}>{inp(o.designation, (v) => setO({ ...o, designation: v }), oe["designation"])}</Field>
+            <Field label="NID number" required error={oe["nidNumber"]}>{inp(o.nidNumber, (v) => setO({ ...o, nidNumber: v }), oe["nidNumber"])}</Field>
             <Field label="Date of birth">{inp(o.dateOfBirth, (v) => setO({ ...o, dateOfBirth: v }), undefined, "date")}</Field>
             <button className="w-fit rounded-xl bg-foreground px-5 py-2.5 text-sm font-medium text-background">Save owner information</button>
           </form>

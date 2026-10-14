@@ -6,13 +6,13 @@ import { setAuthTokenGetter } from "./api/client";
 
 export type Role = "agent" | "admin";
 export interface Session {
-  userId: string; name: string; email: string; phone?: string; role: Role;
+  userId: string; name: string; email: string; phone?: string | undefined; role: Role;
   /** Backend (NestJS) agent id used for wallet API calls. */
-  backendAgentId?: string;
+  backendAgentId?: string | undefined;
   devPreview: true;
 }
 
-export const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
+export const CLERK_PUBLISHABLE_KEY = import.meta.env["VITE_CLERK_PUBLISHABLE_KEY"] as string | undefined;
 /** Flip to true once @clerk/clerk-react is installed and wired into signUp/signIn/getToken. */
 export const CLERK_INTEGRATED = false;
 
@@ -49,7 +49,7 @@ export function useSession() {
     () => null,
   );
 }
-export function startDevPreview(input: { role: Role; name: string; email: string; phone?: string }) {
+export function startDevPreview(input: { role: Role; name: string; email: string; phone?: string | undefined }) {
   set({ ...input, userId: "dev_" + Math.random().toString(36).slice(2, 10), devPreview: true });
 }
 export function updateSession(patch: Partial<Pick<Session, "name" | "phone" | "backendAgentId">>) {

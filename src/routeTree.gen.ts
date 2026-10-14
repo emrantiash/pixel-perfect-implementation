@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FlightsRouteImport } from './routes/flights'
 import { Route as AdminAgentVerificationRouteImport } from './routes/admin.agent-verification'
+import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminDocumentsRouteImport } from './routes/admin.documents'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminSignInRouteImport } from './routes/admin.sign-in'
+import { Route as AdminWalletTopUpsRouteImport } from './routes/admin.wallet-top-ups'
+import { Route as AdminWalletTransactionsRouteImport } from './routes/admin.wallet-transactions'
 import { Route as AgentBookingsRouteImport } from './routes/agent.bookings'
 import { Route as AgentDashboardRouteImport } from './routes/agent.dashboard'
 import { Route as AgentDocumentsRouteImport } from './routes/agent.documents'
@@ -44,6 +48,11 @@ const AdminAgentVerificationRoute = AdminAgentVerificationRouteImport.update({
   path: '/admin/agent-verification',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/admin/bookings',
+  path: '/admin/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
@@ -54,9 +63,24 @@ const AdminDocumentsRoute = AdminDocumentsRouteImport.update({
   path: '/admin/documents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSignInRoute = AdminSignInRouteImport.update({
   id: '/admin/sign-in',
   path: '/admin/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWalletTopUpsRoute = AdminWalletTopUpsRouteImport.update({
+  id: '/admin/wallet-top-ups',
+  path: '/admin/wallet-top-ups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWalletTransactionsRoute = AdminWalletTransactionsRouteImport.update({
+  id: '/admin/wallet-transactions',
+  path: '/admin/wallet-transactions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentBookingsRoute = AgentBookingsRouteImport.update({
@@ -129,9 +153,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/agent-verification': typeof AdminAgentVerificationRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sign-in': typeof AdminSignInRoute
+  '/admin/wallet-top-ups': typeof AdminWalletTopUpsRoute
+  '/admin/wallet-transactions': typeof AdminWalletTransactionsRoute
   '/agent/bookings': typeof AgentBookingsRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
@@ -150,9 +178,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/agent-verification': typeof AdminAgentVerificationRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sign-in': typeof AdminSignInRoute
+  '/admin/wallet-top-ups': typeof AdminWalletTopUpsRoute
+  '/admin/wallet-transactions': typeof AdminWalletTransactionsRoute
   '/agent/bookings': typeof AgentBookingsRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
@@ -172,9 +204,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
   '/admin/agent-verification': typeof AdminAgentVerificationRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/documents': typeof AdminDocumentsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/sign-in': typeof AdminSignInRoute
+  '/admin/wallet-top-ups': typeof AdminWalletTopUpsRoute
+  '/admin/wallet-transactions': typeof AdminWalletTransactionsRoute
   '/agent/bookings': typeof AgentBookingsRoute
   '/agent/dashboard': typeof AgentDashboardRoute
   '/agent/documents': typeof AgentDocumentsRoute
@@ -195,9 +231,13 @@ export interface FileRouteTypes {
     | '/'
     | '/flights'
     | '/admin/agent-verification'
+    | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/documents'
+    | '/admin/settings'
     | '/admin/sign-in'
+    | '/admin/wallet-top-ups'
+    | '/admin/wallet-transactions'
     | '/agent/bookings'
     | '/agent/dashboard'
     | '/agent/documents'
@@ -216,9 +256,13 @@ export interface FileRouteTypes {
     | '/'
     | '/flights'
     | '/admin/agent-verification'
+    | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/documents'
+    | '/admin/settings'
     | '/admin/sign-in'
+    | '/admin/wallet-top-ups'
+    | '/admin/wallet-transactions'
     | '/agent/bookings'
     | '/agent/dashboard'
     | '/agent/documents'
@@ -237,9 +281,13 @@ export interface FileRouteTypes {
     | '/'
     | '/flights'
     | '/admin/agent-verification'
+    | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/documents'
+    | '/admin/settings'
     | '/admin/sign-in'
+    | '/admin/wallet-top-ups'
+    | '/admin/wallet-transactions'
     | '/agent/bookings'
     | '/agent/dashboard'
     | '/agent/documents'
@@ -259,9 +307,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FlightsRoute: typeof FlightsRoute
   AdminAgentVerificationRoute: typeof AdminAgentVerificationRoute
+  AdminBookingsRoute: typeof AdminBookingsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDocumentsRoute: typeof AdminDocumentsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSignInRoute: typeof AdminSignInRoute
+  AdminWalletTopUpsRoute: typeof AdminWalletTopUpsRoute
+  AdminWalletTransactionsRoute: typeof AdminWalletTransactionsRoute
   AgentBookingsRoute: typeof AgentBookingsRoute
   AgentDashboardRoute: typeof AgentDashboardRoute
   AgentDocumentsRoute: typeof AgentDocumentsRoute
@@ -300,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAgentVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/admin/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/admin/dashboard'
@@ -314,11 +373,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/sign-in': {
       id: '/admin/sign-in'
       path: '/admin/sign-in'
       fullPath: '/admin/sign-in'
       preLoaderRoute: typeof AdminSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/wallet-top-ups': {
+      id: '/admin/wallet-top-ups'
+      path: '/admin/wallet-top-ups'
+      fullPath: '/admin/wallet-top-ups'
+      preLoaderRoute: typeof AdminWalletTopUpsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/wallet-transactions': {
+      id: '/admin/wallet-transactions'
+      path: '/admin/wallet-transactions'
+      fullPath: '/admin/wallet-transactions'
+      preLoaderRoute: typeof AdminWalletTransactionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/bookings': {
@@ -419,9 +499,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FlightsRoute: FlightsRoute,
   AdminAgentVerificationRoute: AdminAgentVerificationRoute,
+  AdminBookingsRoute: AdminBookingsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDocumentsRoute: AdminDocumentsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminSignInRoute: AdminSignInRoute,
+  AdminWalletTopUpsRoute: AdminWalletTopUpsRoute,
+  AdminWalletTransactionsRoute: AdminWalletTransactionsRoute,
   AgentBookingsRoute: AgentBookingsRoute,
   AgentDashboardRoute: AgentDashboardRoute,
   AgentDocumentsRoute: AgentDocumentsRoute,
