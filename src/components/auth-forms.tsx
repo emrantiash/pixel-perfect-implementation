@@ -16,7 +16,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: ReactNode }) {
+export function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string | undefined; children: ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium">{label}{required && <span className="text-error"> *</span>}</span>
@@ -125,11 +125,11 @@ export function RegisterForm() {
       <h1 className="mt-2 font-display text-3xl font-bold tracking-tight">Partner with TripFlyer</h1>
       <p className="mt-2 text-sm text-muted-foreground">Create your account first. You'll add business details and verification documents from your dashboard after signing in.</p>
       <form onSubmit={submit} noValidate className="mt-6 grid gap-4 rounded-[28px] border border-border bg-surface p-6 shadow-soft">
-        <Field label="Full name" required error={errors.name}><input value={f.name} onChange={(e) => up("name")(e.target.value)} className="field" autoComplete="name" aria-invalid={!!errors.name} /></Field>
-        <Field label="Email address" required error={errors.email}><input type="email" value={f.email} onChange={(e) => up("email")(e.target.value)} className="field" autoComplete="email" placeholder="you@agency.com.bd" aria-invalid={!!errors.email} /></Field>
-        <Field label="Phone number" required error={errors.phone}><input type="tel" value={f.phone} onChange={(e) => up("phone")(e.target.value)} className="field" autoComplete="tel" placeholder="01712345678" aria-invalid={!!errors.phone} /></Field>
-        <Field label="Password" required error={errors.password}><PasswordInput value={f.password} onChange={up("password")} invalid={!!errors.password} autoComplete="new-password" /></Field>
-        <Field label="Confirm password" required error={errors.confirm}><PasswordInput value={f.confirm} onChange={up("confirm")} invalid={!!errors.confirm} autoComplete="new-password" /></Field>
+        <Field label="Full name" required error={errors["name"]}><input value={f.name} onChange={(e) => up("name")(e.target.value)} className="field" autoComplete="name" aria-invalid={!!errors["name"]} /></Field>
+        <Field label="Email address" required error={errors["email"]}><input type="email" value={f.email} onChange={(e) => up("email")(e.target.value)} className="field" autoComplete="email" placeholder="you@agency.com.bd" aria-invalid={!!errors["email"]} /></Field>
+        <Field label="Phone number" required error={errors["phone"]}><input type="tel" value={f.phone} onChange={(e) => up("phone")(e.target.value)} className="field" autoComplete="tel" placeholder="01712345678" aria-invalid={!!errors["phone"]} /></Field>
+        <Field label="Password" required error={errors["password"]}><PasswordInput value={f.password} onChange={up("password")} invalid={!!errors["password"]} autoComplete="new-password" /></Field>
+        <Field label="Confirm password" required error={errors["confirm"]}><PasswordInput value={f.confirm} onChange={up("confirm")} invalid={!!errors["confirm"]} autoComplete="new-password" /></Field>
         {error && <div role="alert" className="rounded-xl bg-clay-soft px-3 py-2 text-sm">{error}</div>}
         <button disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-dark disabled:opacity-60">{busy && <Spinner />}Create account</button>
         <p className="text-center text-sm text-muted-foreground">Already registered? <Link to="/agent/sign-in" className="font-medium text-foreground underline">Agent sign in</Link></p>

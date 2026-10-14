@@ -57,14 +57,14 @@ function TopUp() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <Card>
           <form onSubmit={submit} noValidate className="grid gap-4">
-            <Field label="Amount (BDT)" required error={errors.amount}><input inputMode="decimal" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} className="field" aria-invalid={!!errors.amount} /></Field>
-            <Field label="Payment method" required error={errors.paymentMethod}>
-              <select value={f.paymentMethod} onChange={(e) => setF({ ...f, paymentMethod: e.target.value })} className="field" aria-invalid={!!errors.paymentMethod}>
+            <Field label="Amount (BDT)" required error={errors["amount"]}><input inputMode="decimal" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} className="field" aria-invalid={!!errors["amount"]} /></Field>
+            <Field label="Payment method" required error={errors["paymentMethod"]}>
+              <select value={f.paymentMethod} onChange={(e) => setF({ ...f, paymentMethod: e.target.value })} className="field" aria-invalid={!!errors["paymentMethod"]}>
                 <option value="">Select…</option>{PAYMENT_METHODS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </Field>
-            <Field label="Transaction reference" required error={errors.transactionReference}><input value={f.transactionReference} onChange={(e) => setF({ ...f, transactionReference: e.target.value })} className="field" placeholder="e.g. bKash TrxID" aria-invalid={!!errors.transactionReference} /></Field>
-            <Field label="Payment proof URL" error={errors.paymentProofUrl}><input value={f.paymentProofUrl} onChange={(e) => setF({ ...f, paymentProofUrl: e.target.value })} className="field" placeholder="https://…" aria-invalid={!!errors.paymentProofUrl} /></Field>
+            <Field label="Transaction reference" required error={errors["transactionReference"]}><input value={f.transactionReference} onChange={(e) => setF({ ...f, transactionReference: e.target.value })} className="field" placeholder="e.g. bKash TrxID" aria-invalid={!!errors["transactionReference"]} /></Field>
+            <Field label="Payment proof URL" error={errors["paymentProofUrl"]}><input value={f.paymentProofUrl} onChange={(e) => setF({ ...f, paymentProofUrl: e.target.value })} className="field" placeholder="https://…" aria-invalid={!!errors["paymentProofUrl"]} /></Field>
             {m.isError && <div role="alert" className="rounded-xl bg-clay-soft px-3 py-2 text-sm">{errorMessage(m.error)}</div>}
             <button disabled={m.isPending} className="inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60">{m.isPending && <Spinner />}Submit request</button>
           </form>
