@@ -56,5 +56,5 @@ export function fmtMoney(v: Money | undefined | null, currency = "BDT") {
   const s = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   return currency === "BDT" ? `৳ ${s}` : `${currency} ${s}`;
 }
-export const agentName = (a?: AgentRef, fallbackId?: string) => a?.businessName ?? a?.companyName ?? a?.name ?? fallbackId ?? "—" | undefined;
-export const fmtDate = (d?: string | null) => (d ? new Date(d).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" | undefined }) : "—");
+export const agentName = (a?: AgentRef, fallbackId?: string) => a?.businessName ?? a?.companyName ?? a?.name ?? fallbackId ?? "—";
+export const fmtDate = (d?: string | null) => (d ? new Date(d).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "—");

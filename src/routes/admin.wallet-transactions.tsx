@@ -42,7 +42,7 @@ function AllTx() {
             <select value={type} onChange={(e) => setType(e.target.value)} className="field w-auto"><option value="">All types</option>{types.map((t) => <option key={t}>{t}</option>)}</select>
             <span className="text-xs text-muted-foreground">Filters apply to the current page.</span>
           </div>
-          <TransactionsTable q={q} showAgent filter={(t) => (!type || t.type === type) && (!s || [t.id, agentName(t.agent, t.agentId), t.reference, t.bookingId, t.description].some((v) => v?.toLowerCase().includes(s)))} />
+          <TransactionsTable q={q} showAgent filter={(t) => (!type || t.type === type) && (!s || [t.id, agentName(t.agent, t.agentId), t.reference, t.bookingId, t.description].some((v) => String(v ?? "").toLowerCase().includes(s)))} />
           <Pager page={page} hasNext={hasNext} onPage={setPage} />
         </>
       )}
