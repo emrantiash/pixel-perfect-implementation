@@ -139,7 +139,7 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
   });
 
   const ownerName =
-    [agent.user.firstName, agent.user.lastName].filter(Boolean).join(" ") || "Name not provided";
+    [agent.user?.firstName, agent.user?.lastName].filter(Boolean).join(" ") || "Name not provided";
 
   return (
     <div className="rounded-[24px] border border-border bg-surface p-6">
@@ -149,7 +149,7 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
             {agent.companyName || "Profile incomplete"}
           </h2>
           <div className="mt-1 text-sm text-muted-foreground">
-            {ownerName} · {agent.user.email} · {agent.user.phone || "—"}
+            {ownerName} · {agent.user?.email} · {agent.user?.phone || "—"}
           </div>
           <div className="text-sm text-muted-foreground">
             {[agent.businessType, agent.address, agent.city, agent.country]
@@ -161,21 +161,21 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
         <div className="flex flex-wrap items-center gap-2">
           <StatusLabel status={agent.verificationStatus} />
 
-          {agent.verificationStatus.toUpperCase() !== "APPROVED" && (
+          {agent.verificationStatus?.toUpperCase() !== "APPROVED" && (
             <button
               type="button"
               onClick={() => setAgentApproving(true)}
-              disabled={agentVerificationMutation.isPending}
+              disabled={agentVerificationMutation?.isPending}
               className="rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               Approve Agent
             </button>
           )}
 
-          {agent.verificationStatus.toUpperCase() !== "REJECTED" && (
+          {agent.verificationStatus?.toUpperCase() !== "REJECTED" && (
             <button
               type="button"
-              disabled={agentVerificationMutation.isPending}
+              disabled={agentVerificationMutation?.isPending}
               onClick={() => {
                 setAgentReason("");
                 setAgentRejecting(true);
@@ -200,9 +200,9 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
             No documents have been uploaded for this agent.
           </p>
         ) : (
-          agent.documents.map((document) => {
-            const status = document.verificationStatus.toUpperCase();
-            const busy = verificationMutation.isPending;
+          agent.documents?.map((document) => {
+            const status = document.verificationStatus?.toUpperCase();
+            const busy = verificationMutation?.isPending;
 
             return (
               <div
@@ -328,14 +328,19 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
         confirmLabel="Reject document"
         tone="danger"
         disabled={reason.trim().length < 5 || verificationMutation.isPending}
+
         onConfirm={async () => {
           if (!rejecting) return;
 
-          await verificationMutation.mutateAsync({
-            document: rejecting,
-            verificationStatus: "REJECTED",
-            remarks: reason.trim(),
-          });
+          try {
+            await verificationMutation.mutateAsync({
+              document: rejecting,
+              verificationStatus: "REJECTED",
+              remarks: reason.trim(),
+            });
+          } catch {
+            // The mutation displays the error toast.
+          }
         }}
       >
         <textarea
@@ -352,7 +357,8 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
         open={agentApproving}
         onOpenChange={(open) => setAgentApproving(open)}
         title={`Approve ${agent.companyName}?`}
-        description="This will approve the overall agent profile. All five required documents must already be approved."
+        description="This will approve the overall agent profile. All three required documents (NID, TIN Certificate, and Trade License) must already be approved.
+        Please confirm that you have reviewed the agency and its three required documents."
         confirmLabel="Approve Agent"
         disabled={agentVerificationMutation.isPending}
         onConfirm={async () => {
@@ -382,12 +388,14 @@ export function AgentReview({ agent }: { agent: BackendAgent }) {
         onConfirm={async () => {
           try {
             await agentVerificationMutation.mutateAsync({
-              verificationStatus: "APPROVED",
-              remarks: "Agent approved by admin.",
+              verificationStatus: "REJECTED",
+              remarks: agentReason.trim(),
             });
-            setAgentApproving(false);
+
+            setAgentRejecting(false);
+            setAgentReason("");
           } catch {
-            setAgentApproving(false);
+            // The mutation displays the error toast.
           }
         }}
       >

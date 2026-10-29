@@ -2,14 +2,25 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import type { DocStatus, VerificationStatus } from "@/lib/mock/agents";
 
-export function Logo() {
+
+type LogoProps = {
+  to?: "/" | "/agent/dashboard" | "/admin/dashboard";
+};
+
+export function Logo({ to = "/" }: LogoProps) {
   return (
-    <Link to="/" className="flex items-center gap-2">
-      <div className="grid size-8 place-items-center rounded-xl bg-primary font-display text-sm font-bold text-primary-foreground">T</div>
-      <span className="font-display text-lg font-bold tracking-tight">TripFlyer</span>
+    <Link to={to} className="flex items-center gap-2">
+      <div className="grid size-8 place-items-center rounded-xl bg-primary font-display text-sm font-bold text-primary-foreground">
+        T
+      </div>
+      <span className="font-display text-lg font-bold tracking-tight">
+        TripFlyer
+      </span>
     </Link>
   );
 }
+
+
 
 export function SiteHeader() {
   return (
