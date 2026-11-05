@@ -15,7 +15,7 @@ import {
 } from "@/components/panel";
 import { useAgent, useAgentTransactions, useWallet } from "@/components/agent-data";
 import { TransactionsTable, WalletNotLinked } from "@/components/wallet-ui";
-import { fmtMoney } from "@/lib/api/wallet";
+import { fmtMoney, walletApi } from "@/lib/api/wallet";
 import {
   businessComplete,
   docsUploaded,
@@ -26,6 +26,7 @@ import {
 } from "@/lib/mock/agents";
 import { errorMessage } from "@/lib/api/client";
 import { useAuth } from "@clerk/tanstack-react-start";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/agent/dashboard")({
   head: () => ({
@@ -91,6 +92,12 @@ function Dashboard() {
   const agentId = session?.backendAgentId;
   const wallet = useWallet(agentId);
   const tx = useAgentTransactions(agentId, 1, 5);
+  const topUpsQuery = useQuery({
+    queryKey: ["agent-top-ups", agentId, 1, 10],
+    queryFn: ({ signal }) => walletApi.getAgentTopUps(agentId!, 1, 10, signal),
+    enabled: !!agentId,
+    retry: false,
+  });
   if (!agent || !session) return <Skeleton />;
 
   const bOk = profile?.completion.businessComplete ?? false;
@@ -151,14 +158,34 @@ function Dashboard() {
     profile?.businessProfile?.verificationRemarks?.trim() ||
     "Please contact the TripFlyer team for details.";
 
-  const hasActionRequired = agentRejected || rejectedDocuments.length > 0;
+  // Only the latest request is considered for active action required.
+  // A newer pending or approved request supersedes an older rejection.
+  const latestTopUp = topUpsQuery.data?.items?.[0];
+
+  const rejectedTopUp = latestTopUp?.status === "REJECTED" ? latestTopUp : null;
+
+  const topUpRejectionMessage = rejectedTopUp
+    ? `Wallet top-up (${fmtMoney(
+        rejectedTopUp.amount,
+        rejectedTopUp.currency || "BDT",
+      )}) rejected: ${
+        rejectedTopUp.adminRemarks?.trim() || "Please contact the TripFlyer team for details."
+      }`
+    : "";
+
+  const hasActionRequired = agentRejected || rejectedDocuments.length > 0 || !!rejectedTopUp;
 
   const actionRequiredMessage = [
     ...(agentRejected ? [`Application rejected: ${agentRejectionReason}`] : []),
     ...rejectedDocuments.map((doc) => `${doc.label}: ${doc.remarks}`),
+    ...(rejectedTopUp ? [topUpRejectionMessage] : []),
   ].join(" · ");
 
-  const actionRequiredSubtitle = hasActionRequired ? actionRequiredMessage : "No action needed";
+  const actionRequiredSubtitle = hasActionRequired
+    ? actionRequiredMessage
+    : topUpsQuery.isError
+      ? "Could not load wallet request status"
+      : "No action needed";
 
   const steps = [
     {
@@ -179,20 +206,20 @@ function Dashboard() {
       desc: `${submittedCount} of ${REQUIRED_DOCS.length} uploaded`, //{`${submittedCount}/${REQUIRED_DOCS.length}`}
       to: "/agent/documents" as const,
     },
-    {
-      done: !!agent.submittedAt,
-      title: "Review and submit",
-      desc: agent.submittedAt ? "Submitted for review" : "Submit once everything above is complete",
-      to: null,
-    },
+    // {
+    //   done: !!agent.submittedAt,
+    //   title: "Review and submit",
+    //   desc: agent.submittedAt ? "Submitted for review" : "Submit once everything above is complete",
+    //   to: null,
+    // },
   ];
-
+  const walletBalance = 3000;
   return (
     <>
       <PageHeader
         eyebrow={`Welcome, ${session.name.split(" ")[0]}`}
         title={profile?.businessProfile?.companyName || "Your agency"}
-        actions={<StatusBadge status={"bal:3000"} />}
+        actions={<StatusBadge status="Agent Dashboard" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -229,7 +256,7 @@ function Dashboard() {
           }
           s={actionRequiredSubtitle}
         />
-       
+
         <Stat
           k="Wallet balance"
           v={
@@ -383,10 +410,18 @@ function Dashboard() {
         </section>
         <section className="space-y-4">
           <h2 className="font-display text-lg font-semibold">Top-ups & bookings</h2>
-          <PendingIntegration title="Top-up request history">
-            The backend has no endpoint yet for listing an agent's own top-up requests. Submitted
-            requests show their returned status on the top-up page.
-          </PendingIntegration>
+          <Card>
+            <h3 className="font-semibold">Top-up request status</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {topUpsQuery.isPending
+                ? "Loading your top-up requests..."
+                : topUpsQuery.isError
+                  ? "Unable to load top-up requests."
+                  : latestTopUp
+                    ? `Latest request: ${latestTopUp.status}`
+                    : "You haven't submitted a top-up request yet."}
+            </p>
+          </Card>
           <PendingIntegration title="Recent bookings">
             Booking APIs aren't connected yet.
           </PendingIntegration>

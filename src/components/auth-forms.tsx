@@ -104,45 +104,54 @@ function useRedirectAuthenticatedUser(enabled = true) {
   useEffect(() => {
     if (!enabled || !isLoaded) return;
 
-    if (isSignedIn) {
-      if (!userLoaded || !user) return;
+    let cancelled = false;
 
-      const publicRole = String(user.publicMetadata["role"] ?? "").toLowerCase();
+    async function syncAuthenticatedUser() {
+      if (!isSignedIn || !userLoaded || !user) return;
 
-      const accountType = String(user.unsafeMetadata["accountType"] ?? "").toLowerCase();
+      try {
+        const me = await usersApi.getMe();
 
-      let role: Role | null = null;
+        if (cancelled) return;
 
-      if (publicRole === "admin") {
-        role = "admin";
-      } else if (publicRole === "agent" || accountType === "agent") {
-        role = "agent";
+        if (me.status !== "ACTIVE") {
+          throw new Error("Your account is not active. Please contact support.");
+        }
+
+        if (me.role !== "AGENT" && me.role !== "ADMIN") {
+          throw new Error("This account does not have dashboard access.");
+        }
+
+        const role: Role = me.role === "ADMIN" ? "admin" : "agent";
+
+        startClerkSession({
+          userId: me.clerkUserId,
+          name: [me.firstName, me.lastName].filter(Boolean).join(" "),
+          email: me.email,
+          role,
+          ...(me.phone ? { phone: me.phone } : {}),
+          ...(me.agentProfile?.id ? { backendAgentId: me.agentProfile.id } : {}),
+        });
+
+        await navigate({
+          to: role === "admin" ? "/admin/dashboard" : "/agent/dashboard",
+        });
+      } catch (error) {
+        console.error("Unable to synchronize authenticated user:", error);
       }
-
-      if (!role) return;
-
-      startClerkSession({
-        userId: user.id,
-        name: user.fullName ?? user.firstName ?? user.primaryEmailAddress?.emailAddress ?? "User",
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-        ...(user.primaryPhoneNumber?.phoneNumber
-          ? { phone: user.primaryPhoneNumber.phoneNumber }
-          : {}),
-        role,
-      });
-
-      void navigate({
-        to: role === "admin" ? "/admin/dashboard" : "/agent/dashboard",
-      });
-
-      return;
     }
 
-    if (previewSession) {
+    if (isSignedIn) {
+      void syncAuthenticatedUser();
+    } else if (previewSession) {
       void navigate({
         to: previewSession.role === "admin" ? "/admin/dashboard" : "/agent/dashboard",
       });
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [enabled, isLoaded, isSignedIn, userLoaded, user, previewSession, navigate]);
 }
 

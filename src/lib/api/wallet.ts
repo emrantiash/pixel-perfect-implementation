@@ -1,21 +1,61 @@
-// Wallet API — mirrors the existing NestJS wallet controller routes.
-// Field names follow the Prisma models as currently understood; align with backend DTOs if they differ.
 import { apiRequest, toPage, type Page } from "./client";
 
 export type Money = number | string;
-export interface Wallet { id?: string | undefined; agentId: string; balance: Money; currency: string; updatedAt?: string | undefined }
-export interface AgentRef { id: string; businessName?: string | undefined; companyName?: string | undefined; name?: string | undefined; email?: string | undefined }
+
+export interface Wallet {
+  id?: string;
+  agentId: string;
+  balance: Money;
+  currency: string;
+  walletExists?: boolean;
+  updatedAt?: string;
+}
+
+export interface AgentRef {
+  id: string;
+  businessName?: string;
+  companyName?: string;
+  name?: string;
+  email?: string;
+}
+
 export interface WalletTransaction {
-  id: string; agentId?: string | undefined; agent?: AgentRef | undefined; type: string; amount: Money;
-  balanceBefore?: Money | undefined; balanceAfter?: Money | undefined; currency?: string | undefined; bookingId?: string | null | undefined;
-  reference?: string | null | undefined; description?: string | null | undefined; createdBy?: string | null | undefined; createdAt: string;
+  id: string;
+  agentId?: string;
+  agent?: AgentRef;
+  type: string;
+  amount: Money;
+  balanceBefore?: Money;
+  balanceAfter?: Money;
+  currency?: string;
+  bookingId?: string | null;
+  reference?: string | null;
+  description?: string | null;
+  createdBy?: string | null;
+  createdAt: string;
 }
+
 export type TopUpStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export interface TopUpRequest {
-  id: string; agentId: string; agent?: AgentRef | undefined; amount: Money; currency?: string | undefined;
-  paymentMethod: PaymentMethod; transactionReference?: string | undefined; paymentProofUrl?: string | null | undefined;
-  status: TopUpStatus; remarks?: string | null | undefined; adminRemarks?: string | null | undefined; createdAt: string; reviewedAt?: string | null | undefined;
+  id: string;
+  agentId: string;
+  agent?: AgentRef;
+  amount: Money;
+  currency?: string;
+  method: PaymentMethod;
+  transactionReference?: string;
+  proofUrl?: string | null;
+  status: TopUpStatus;
+  adminRemarks?: string | null;
+  createdAt: string;
+  reviewedAt?: string | null;
 }
+
+export interface AgentTopUpDetail extends TopUpRequest {
+  proofUrl: string | null;
+}
+
 export const PAYMENT_METHODS = [
   { value: "BANK_TRANSFER", label: "Bank transfer" },
   { value: "BKASH", label: "bKash" },
@@ -24,37 +64,192 @@ export const PAYMENT_METHODS = [
   { value: "CASH", label: "Cash" },
   { value: "OTHER", label: "Other" },
 ] as const;
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number]["value"];
-export const methodLabel = (m: string) => PAYMENT_METHODS.find((p) => p.value === m)?.label ?? m;
 
-export interface TopUpInput { amount: number; paymentMethod: PaymentMethod; transactionReference: string; paymentProofUrl?: string | undefined }
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number]["value"];
+
+export const methodLabel = (method: string) =>
+  PAYMENT_METHODS.find((item) => item.value === method)?.label ?? method;
+
+export interface TopUpInput {
+  amount: string;
+  method: PaymentMethod;
+  transactionReference?: string;
+  proof?: File;
+  previousTopUpId?: string;
+}
+
+export interface ApproveTopUpResponse {
+  message: string;
+  topUpId: string;
+  status: TopUpStatus;
+  transactionId: string;
+  amount: Money;
+  balanceBefore: Money;
+  balanceAfter: Money;
+  currency: string;
+}
+
+export interface RejectTopUpResponse {
+  message: string;
+  topUpId: string;
+  status: TopUpStatus;
+}
 
 export const walletApi = {
   getWallet: (agentId: string, signal?: AbortSignal) =>
     apiRequest<Wallet>(`/wallet/agents/${encodeURIComponent(agentId)}`, { signal }),
-  getAgentTransactions: async (agentId: string, page = 1, limit = 10, signal?: AbortSignal): Promise<Page<WalletTransaction>> =>
-    toPage(await apiRequest(`/wallet/agents/${encodeURIComponent(agentId)}/transactions`, { query: { page, limit }, signal }), page, limit),
-  createTopUp: (agentId: string, input: TopUpInput) =>
-    apiRequest<TopUpRequest>(`/wallet/agents/${encodeURIComponent(agentId)}/top-ups`, { method: "POST", body: input }),
-  // Admin-only — backend must enforce authorisation before production.
-  getPendingTopUps: async (page = 1, limit = 10, signal?: AbortSignal): Promise<Page<TopUpRequest>> =>
-    toPage(await apiRequest("/wallet/top-ups/pending", { query: { page, limit }, signal }), page, limit),
-  approveTopUp: (id: string, remarks?: string) =>
-    apiRequest<TopUpRequest>(`/wallet/top-ups/${encodeURIComponent(id)}/approve`, { method: "PATCH", body: remarks ? { remarks } : {} }),
-  rejectTopUp: (id: string, remarks: string) =>
-    apiRequest<TopUpRequest>(`/wallet/top-ups/${encodeURIComponent(id)}/reject`, { method: "PATCH", body: { remarks } }),
-  getAllTransactions: async (page = 1, limit = 10, signal?: AbortSignal): Promise<Page<WalletTransaction>> =>
-    toPage(await apiRequest("/wallet/transactions", { query: { page, limit }, signal }), page, limit),
-  // NOTE: POST /wallet/agents/:agentId/credit is a development-only direct credit endpoint.
-  // It is intentionally NOT exposed in the UI.
+
+  getAgentTransactions: async (
+    agentId: string,
+    page = 1,
+    limit = 10,
+    signal?: AbortSignal,
+    search?: string,
+  ): Promise<Page<WalletTransaction>> =>
+    toPage(
+      await apiRequest(`/wallet/agents/${encodeURIComponent(agentId)}/transactions`, {
+        query: {
+          page,
+          limit,
+          ...(search?.trim() ? { search: search.trim() } : {}),
+        },
+        signal,
+      }),
+      page,
+      limit,
+    ),
+
+  getAgentTopUps: async (
+    agentId: string,
+    page = 1,
+    limit = 10,
+    signal?: AbortSignal,
+  ): Promise<Page<TopUpRequest>> => {
+    return toPage(
+      await apiRequest(`/wallet/agents/${encodeURIComponent(agentId)}/top-ups`, {
+        query: { page, limit },
+        signal,
+      }),
+      page,
+      limit,
+    );
+  },
+
+  createTopUp: (agentId: string, input: TopUpInput) => {
+    const formData = new FormData();
+
+    formData.append("amount", input.amount);
+    formData.append("method", input.method);
+
+    if (input.transactionReference) {
+      formData.append("transactionReference", input.transactionReference);
+    }
+
+    if (input.proof) {
+      formData.append("proof", input.proof);
+    }
+
+    if (input.previousTopUpId) {
+      formData.append("previousTopUpId", input.previousTopUpId);
+    }
+
+    return apiRequest<{
+      message: string;
+      topUpRequest: TopUpRequest;
+    }>(`/wallet/agents/${encodeURIComponent(agentId)}/top-ups`, {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  getPendingTopUps: async (
+    page = 1,
+    limit = 10,
+    signal?: AbortSignal,
+  ): Promise<Page<TopUpRequest>> =>
+    toPage(
+      await apiRequest("/wallet/top-ups/pending", {
+        query: { page, limit },
+        signal,
+      }),
+      page,
+      limit,
+    ),
+
+  approveTopUp: (id: string, adminRemarks?: string) =>
+    apiRequest<ApproveTopUpResponse>(`/wallet/top-ups/${encodeURIComponent(id)}/approve`, {
+      method: "PATCH",
+      body: adminRemarks ? { adminRemarks } : {},
+    }),
+
+  rejectTopUp: (id: string, adminRemarks?: string) =>
+    apiRequest<RejectTopUpResponse>(`/wallet/top-ups/${encodeURIComponent(id)}/reject`, {
+      method: "PATCH",
+      body: adminRemarks ? { adminRemarks } : {},
+    }),
+
+  getAllTransactions: async (
+    page = 1,
+    limit = 20,
+    signal?: AbortSignal,
+    search?: string,
+    type?: string,
+    fromDate?: string,
+    toDate?: string,
+  ): Promise<Page<WalletTransaction>> =>
+    toPage(
+      await apiRequest("/wallet/transactions", {
+        query: {
+          page,
+          limit,
+          ...(search?.trim() ? { search: search.trim() } : {}),
+          ...(type ? { type } : {}),
+          ...(fromDate ? { fromDate } : {}),
+          ...(toDate ? { toDate } : {}),
+        },
+        signal,
+      }),
+      page,
+      limit,
+    ),
+
+  getAgentTopUp: (agentId: string, topUpId: string, signal?: AbortSignal) =>
+    apiRequest<AgentTopUpDetail>(
+      `/wallet/agents/${encodeURIComponent(agentId)}/top-ups/${encodeURIComponent(topUpId)}`,
+      { signal },
+    ),
+
+  getTodayTransactionSummary: async (signal?: AbortSignal) =>
+    apiRequest<{
+      date: string;
+      count: number;
+      totalAmount: string;
+      currency: string;
+    }>("/wallet/transactions/today-summary", { signal }),
 };
 
-export function fmtMoney(v: Money | undefined | null, currency = "BDT") {
-  if (v === undefined || v === null || v === "") return "—";
-  const n = typeof v === "string" ? Number(v) : v;
-  if (Number.isNaN(n)) return String(v);
-  const s = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
-  return currency === "BDT" ? `৳ ${s}` : `${currency} ${s}`;
+export function fmtMoney(value: Money | undefined | null, currency = "BDT") {
+  if (value === undefined || value === null || value === "") return "—";
+
+  const number = typeof value === "string" ? Number(value) : value;
+
+  if (!Number.isFinite(number)) return String(value);
+
+  const formatted = new Intl.NumberFormat("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number);
+
+  return currency === "BDT" ? `৳ ${formatted}` : `${currency} ${formatted}`;
 }
-export const agentName = (a?: AgentRef, fallbackId?: string) => a?.businessName ?? a?.companyName ?? a?.name ?? fallbackId ?? "—";
-export const fmtDate = (d?: string | null) => (d ? new Date(d).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "—");
+
+export const agentName = (agent?: AgentRef, fallbackId?: string) =>
+  agent?.businessName ?? agent?.companyName ?? agent?.name ?? fallbackId ?? "—";
+
+export const fmtDate = (date?: string | null) =>
+  date
+    ? new Date(date).toLocaleString("en-GB", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : "—";

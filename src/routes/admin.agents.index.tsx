@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import { StatusBadge } from "@/components/brand";
 import { EmptyState, PageHeader, PanelShell, Pager, td, th } from "@/components/panel";
 import { REQUIRED_DOCS } from "@/lib/mock/agents";
@@ -24,8 +24,6 @@ export const Route = createFileRoute("/admin/agents/")({
     </PanelShell>
   ),
 });
-
-const PER = 10;
 
 interface BackendAgent {
   id: string;
@@ -66,6 +64,10 @@ function mapVerificationStatus(status: string) {
 function Agents() {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number | "all">(20);
+  const [statusFilter, setStatusFilter] = useState<"APPROVED" | "PENDING" | "REJECTED" | "ALL">(
+    "APPROVED",
+  );
 
   const apiConfigured = isApiConfigured();
 
@@ -87,15 +89,80 @@ function Agents() {
   const list = agents.filter((a) => {
     const ownerName = `${a.user.firstName} ${a.user.lastName}`.trim();
 
-    return (
+    const matchesSearch =
       !term ||
       [a.companyName, ownerName, a.user.email, a.user.phone ?? "", a.city].some((value) =>
         value.toLowerCase().includes(term),
-      )
-    );
+      );
+
+    const matchesStatus =
+      statusFilter === "ALL" || a.verificationStatus.toUpperCase() === statusFilter;
+
+    return matchesSearch && matchesStatus;
   });
 
-  const rows = list.slice((page - 1) * PER, page * PER);
+  const rows = pageSize === "all" ? list : list.slice((page - 1) * pageSize, page * pageSize);
+
+  const downloadCSV = () => {
+    const headers = [
+      "Agency",
+      "Business Type",
+      "Owner",
+      "Email",
+      "Phone",
+      "City",
+      "Country",
+      "Currency",
+      "Documents Submitted",
+      "Verification Status",
+      "Verification Remarks",
+      "Registered Date",
+    ];
+
+    const escapeCSV = (value: unknown) => {
+      let text = String(value ?? "");
+
+      // Protect spreadsheet users from CSV formula injection.
+      if (/^[\s]*[=+\-@]/.test(text)) {
+        text = `'${text}`;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const csvRows = list.map((a) => [
+      a.companyName,
+      a.businessType,
+      `${a.user.firstName} ${a.user.lastName}`.trim(),
+      a.user.email,
+      a.user.phone,
+      a.city,
+      a.country,
+      a.currency,
+      `${a.documents.length}/${REQUIRED_DOCS.length}`,
+      a.verificationStatus,
+      a.verificationRemarks,
+      a.createdAt ? new Date(a.createdAt).toLocaleDateString("en-GB") : "",
+    ]);
+
+    const csv = [
+      headers.map(escapeCSV).join(","),
+      ...csvRows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\r\n");
+
+    const blob = new Blob(["\uFEFF", csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "tripflyer-agents.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -105,17 +172,95 @@ function Agents() {
         description="Manage registered travel agencies and review their verification status."
       />
 
-      <div className="relative mb-4 max-w-sm">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setPage(1);
-          }}
-          placeholder="Search agency, owner, email, city"
-          className="field pl-9"
-        />
+      <div className="mb-5 flex flex-col gap-4 rounded-[20px] border border-border bg-surface p-4 sm:p-5">
+        {/* Search + Table actions */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          {/* Search */}
+          <div className="relative min-w-0 flex-1">
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+            <input
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search agency, owner, email or city..."
+              className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </div>
+
+          {/* Rows per page + Download */}
+          <div className="flex flex-wrap items-center gap-3 lg:shrink-0">
+            <div className="flex items-center gap-2">
+              <label className="whitespace-nowrap text-sm text-muted-foreground">
+                Rows per page
+              </label>
+
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPage(1);
+                  setPageSize(e.target.value === "all" ? "all" : Number(e.target.value));
+                }}
+                className="h-11 min-w-[90px] cursor-pointer rounded-xl border border-border bg-background px-3 text-sm font-medium text-foreground outline-none transition hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={downloadCSV}
+              disabled={list.length === 0}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-medium transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Download className="size-4" />
+              Download CSV
+            </button>
+          </div>
+        </div>
+
+        {/* Verification status filters */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Status
+          </span>
+
+          {(
+            [
+              { label: "Approved", value: "APPROVED" },
+              { label: "Pending", value: "PENDING" },
+              { label: "Rejected", value: "REJECTED" },
+              { label: "All agents", value: "ALL" },
+            ] as const
+          ).map((item) => {
+            const active = statusFilter === item.value;
+
+            return (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => {
+                  setStatusFilter(item.value);
+                  setPage(1);
+                }}
+                className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3.5 text-sm font-medium transition-all ${
+                  active
+                    ? "border-primary bg-primary/10 text-primary shadow-sm"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {active && <span className="size-1.5 rounded-full bg-primary" />}
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {!apiConfigured ? (
@@ -125,7 +270,7 @@ function Agents() {
           in your frontend <code>.env.local</code> file.
         </div>
       ) : isLoading ? (
-        <div className="rounded-xl border border-border bg-surface p-5 text-sm text-muted-foreground">
+        <div className="mt-5 rounded-xl border border-border bg-surface p-5">
           Loading agents from the backend…
         </div>
       ) : isError ? (
@@ -144,10 +289,11 @@ function Agents() {
       ) : rows.length === 0 ? (
         <EmptyState title={term ? "No agents found" : "No agents registered yet"} />
       ) : (
-        <div className="overflow-x-auto rounded-[20px] border border-border bg-surface">
+        <div className="mt-10 overflow-x-auto rounded-[20px] border border-border bg-surface">
           <table className="w-full min-w-[720px] text-sm">
             <thead className="border-b border-border">
               <tr>
+                <th className={`${th} w-16`}>SL</th>
                 <th className={th}>Agency</th>
                 <th className={th}>Owner / contact</th>
                 <th className={th}>Documents</th>
@@ -157,11 +303,15 @@ function Agents() {
             </thead>
 
             <tbody className="divide-y divide-border">
-              {rows.map((a) => {
+              {rows.map((a, index) => {
                 const ownerName = `${a.user.firstName} ${a.user.lastName}`.trim();
 
                 return (
                   <tr key={a.id}>
+                    <td className={`${td} font-mono text-xs text-muted-foreground`}>
+                      {pageSize === "all" ? index + 1 : (page - 1) * pageSize + index + 1}
+                    </td>
+
                     <td className={td}>
                       <div className="font-medium">{a.companyName || "Profile incomplete"}</div>
                       <div className="text-xs text-muted-foreground">
@@ -201,8 +351,8 @@ function Agents() {
         </div>
       )}
 
-      {!isLoading && !isError && list.length > 0 && (
-        <Pager page={page} hasNext={page * PER < list.length} onPage={setPage} />
+      {!isLoading && !isError && pageSize !== "all" && list.length > 0 && (
+        <Pager page={page} hasNext={page * pageSize < list.length} onPage={setPage} />
       )}
     </>
   );

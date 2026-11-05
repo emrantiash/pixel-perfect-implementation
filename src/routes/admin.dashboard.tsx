@@ -33,24 +33,25 @@ function Overview() {
     enabled: on,
     retry: false,
   });
-  const tx = useQuery({
-    queryKey: ["admin-tx", 1, 1],
-    queryFn: ({ signal }) => walletApi.getAllTransactions(1, 1, signal),
+  const todayTx = useQuery({
+    queryKey: ["admin-tx-today-summary"],
+    queryFn: ({ signal }) => walletApi.getTodayTransactionSummary(signal),
     enabled: on,
     retry: false,
   });
-  const live = (q: typeof topups | typeof tx) =>
-    !on
-      ? "—"
-      : q.isPending
-        ? "…"
-        : q.isError
-          ? "Error"
-          : q.data?.total !== undefined
-            ? String(q.data.total)
-            : q.data && q.data.items.length > 0
-              ? "1+"
-              : "0";
+ 
+  const live = (q: typeof topups) =>
+  !on
+    ? "—"
+    : q.isPending
+      ? "…"
+      : q.isError
+        ? "Error"
+        : q.data?.total !== undefined
+          ? String(q.data.total)
+          : q.data && q.data.items.length > 0
+            ? "1+"
+            : "0";
 
   const agentsQuery = useQuery({
     queryKey: ["admin", "agents"],
@@ -99,9 +100,23 @@ function Overview() {
           to="/admin/wallet-top-ups"
         />
         <Metric
-          k="Wallet transactions"
-          v={live(tx)}
-          s={on ? "Live from wallet API" : "API not configured"}
+          k="Today's wallet transactions"
+          v={
+            !on
+              ? "—"
+              : todayTx.isPending
+                ? "…"
+                : todayTx.isError
+                  ? "Error"
+                  : String(todayTx.data?.count ?? 0)
+          }
+          s={
+            todayTx.data
+              ? `Total amount: ${todayTx.data.currency} ${Number(todayTx.data.totalAmount).toLocaleString("en-BD")}`
+              : on
+                ? "Today's transaction count"
+                : "API not configured"
+          }
           to="/admin/wallet-transactions"
         />
         <Metric

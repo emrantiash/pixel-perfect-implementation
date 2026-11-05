@@ -103,7 +103,7 @@ export interface Page<T> {
 export function toPage<T>(raw: unknown, page: number, limit: number): Page<T> {
   if (Array.isArray(raw)) return { items: raw as T[], page, limit };
   const r = (raw ?? {}) as Record<string, unknown>;
-  const items = (r["data"] ?? r["items"] ?? r["results"] ?? []) as T[];
+  const items = (r["data"] ?? r["items"] ?? r["results"] ?? r["transactions"] ?? []) as T[];
   const meta = (r["meta"] ?? r["pagination"] ?? r) as Record<string, unknown>;
   const total = typeof meta["total"] === "number" ? meta["total"] : undefined;
   return { items: Array.isArray(items) ? items : [], page, limit, total };

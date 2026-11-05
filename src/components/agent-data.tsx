@@ -8,7 +8,9 @@ import { isApiConfigured } from "@/lib/api/client";
 /** Current agent session + profile. The profile is created only after a session exists. */
 export function useAgent() {
   const session = useSession();
-  useEffect(() => { if (session?.role === "agent") ensureAgentForUser(session); }, [session]);
+  useEffect(() => {
+    if (session?.role === "agent") ensureAgentForUser(session);
+  }, [session]);
   const agent = useAgentForUser(session?.userId);
   return { session, agent };
 }
@@ -21,10 +23,15 @@ export function useWallet(agentId?: string) {
     retry: false,
   });
 }
-export function useAgentTransactions(agentId: string | undefined, page: number, limit = 10) {
+export function useAgentTransactions(
+  agentId: string | undefined,
+  page: number,
+  limit = 10,
+  search = "",
+) {
   return useQuery({
-    queryKey: ["wallet-tx", agentId, page, limit],
-    queryFn: ({ signal }) => walletApi.getAgentTransactions(agentId!, page, limit, signal),
+    queryKey: ["wallet-tx", agentId, page, limit, search],
+    queryFn: ({ signal }) => walletApi.getAgentTransactions(agentId!, page, limit, signal, search),
     enabled: !!agentId && isApiConfigured(),
     retry: false,
   });
