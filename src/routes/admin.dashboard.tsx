@@ -39,19 +39,19 @@ function Overview() {
     enabled: on,
     retry: false,
   });
- 
+
   const live = (q: typeof topups) =>
-  !on
-    ? "—"
-    : q.isPending
-      ? "…"
-      : q.isError
-        ? "Error"
-        : q.data?.total !== undefined
-          ? String(q.data.total)
-          : q.data && q.data.items.length > 0
-            ? "1+"
-            : "0";
+    !on
+      ? "—"
+      : q.isPending
+        ? "…"
+        : q.isError
+          ? "Error"
+          : q.data?.total !== undefined
+            ? String(q.data.total)
+            : q.data && q.data.items.length > 0
+              ? "1+"
+              : "0";
 
   const agentsQuery = useQuery({
     queryKey: ["admin", "agents"],
@@ -68,13 +68,17 @@ function Overview() {
 
   const agents = agentsQuery.data ?? [];
 
+  const approvedAgents = agents.filter(
+    (agent) => agent.verificationStatus?.toUpperCase() === "APPROVED",
+  );
+
   const agentCount = !on
     ? "—"
     : agentsQuery.isPending
       ? "…"
       : agentsQuery.isError
         ? "Error"
-        : String(agents.length);
+        : String(approvedAgents.length);
 
   const pendingVer = !on
     ? "—"
@@ -84,7 +88,7 @@ function Overview() {
         ? "Error"
         : String(
             agents.filter((agent) => {
-              const status = agent.verificationStatus.toUpperCase();
+              const status = agent.verificationStatus?.toUpperCase();
               return status === "PENDING" || status === "NEEDS_DOCUMENT";
             }).length,
           );
@@ -122,7 +126,7 @@ function Overview() {
         <Metric
           k="Agents"
           v={agentCount}
-          s={on ? "Live from agent API" : "API not configured"}
+          s={on ? "Approved agents only" : "API not configured"}
           to="/admin/agents"
         />
 
